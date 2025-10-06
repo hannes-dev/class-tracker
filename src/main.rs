@@ -13,7 +13,7 @@ mod class;
 mod cli;
 mod commands;
 
-fn main() {
+fn main() -> Result<(), String> {
     // find and create the data directory
     let path = match data_dir() {
         None => exit(1),
@@ -39,15 +39,19 @@ fn main() {
     match cli.name {
         None => classes.list_classes(),
         Some(name) => match cli.action {
-            None => classes.list_lessons(name),
+            None => classes.list_lessons(&name),
             Some(ClassAction::New) => classes.new(name),
-            Some(ClassAction::Add { lesson_name }) => classes.add(name, lesson_name.join(" ")),
+            Some(ClassAction::Add { lesson_name, done }) => {
+                classes.add(name, lesson_name.join(" "), done)
+            }
             Some(ClassAction::Read { lesson_id }) => classes.read(name, lesson_id),
             Some(ClassAction::Attended { lesson_id }) => classes.attended(name, lesson_id),
             Some(ClassAction::Processed { lesson_id }) => classes.processed(name, lesson_id),
         },
-    }
+    }?;
 
     let json_string = serde_json::to_string_pretty(&classes.0).unwrap();
     fs::write(&path, json_string).unwrap();
+
+    Ok(())
 }

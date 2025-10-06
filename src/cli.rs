@@ -24,6 +24,8 @@ pub enum ClassAction {
 
     Add {
         lesson_name: Vec<String>,
+        #[clap(long)]
+        done: Option<String>,
     },
 
     #[clap(alias = "a")]
