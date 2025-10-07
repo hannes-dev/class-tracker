@@ -118,23 +118,25 @@ impl Classes {
 
     pub fn edit(&mut self, name: String, action: ClassAction) -> StringErr {
         if let ClassAction::Edit {
-            lesson_id,
+            lesson_id_range,
             description,
             week,
         } = action
         {
             let class = self.find_mut(&name)?;
-            let lesson = class
-                .lessons
-                .get_mut(lesson_id)
-                .ok_or("No lesson with that id".to_string())?;
+            for lesson_id in lesson_id_range {
+                let lesson = class
+                    .lessons
+                    .get_mut(lesson_id)
+                    .ok_or("No lesson with that id".to_string())?;
 
-            if let Some(description) = description {
-                lesson.description = description.join(" ");
-            }
+                if let Some(ref description) = description {
+                    lesson.description = description.join(" ");
+                }
 
-            if let Some(week) = week {
-                lesson.week = week;
+                if let Some(week) = week {
+                    lesson.week = week;
+                }
             }
             print_lessons(&class.lessons);
         }
