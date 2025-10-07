@@ -40,13 +40,19 @@ fn main() -> Result<(), String> {
         None => classes.list_classes(),
         Some(name) => match cli.action {
             None => classes.list_lessons(&name),
-            Some(ClassAction::New) => classes.new(name),
-            Some(ClassAction::Add { lesson_name, done }) => {
-                classes.add(name, lesson_name.join(" "), done)
-            }
-            Some(ClassAction::Read { lesson_id }) => classes.read(name, lesson_id),
-            Some(ClassAction::Attended { lesson_id }) => classes.attended(name, lesson_id),
-            Some(ClassAction::Processed { lesson_id }) => classes.processed(name, lesson_id),
+            Some(action) => match action {
+                ClassAction::New => classes.new(name),
+                ClassAction::Add {
+                    lesson_name,
+                    done,
+                    week,
+                } => classes.add(name, lesson_name.join(" "), done, week.unwrap_or(1)),
+                ClassAction::Understood { lesson_id } => classes.understood(name, lesson_id),
+                ClassAction::Remove { lesson_id } => classes.remove(name, lesson_id),
+                ClassAction::Attended { lesson_id } => classes.attended(name, lesson_id),
+                ClassAction::Processed { lesson_id } => classes.processed(name, lesson_id),
+                ClassAction::Edit { .. } => classes.edit(name, action),
+            },
         },
     }?;
 

@@ -24,8 +24,10 @@ pub enum ClassAction {
 
     Add {
         lesson_name: Vec<String>,
-        #[clap(long)]
+        #[clap(short, long)]
         done: Option<String>,
+        #[clap(short, long)]
+        week: Option<u32>,
     },
 
     #[clap(alias = "a")]
@@ -33,13 +35,27 @@ pub enum ClassAction {
         lesson_id: usize,
     },
 
-    #[clap(alias = "r")]
-    Read {
+    #[clap(alias = "u")]
+    Understood {
+        lesson_id: usize,
+    },
+
+    #[clap(alias = "rm")]
+    Remove {
         lesson_id: usize,
     },
 
     #[clap(alias = "p")]
     Processed {
         lesson_id: usize,
+    },
+
+    #[clap(alias = "e")]
+    Edit {
+        lesson_id: usize,
+        #[clap(short, long)]
+        description: Option<Vec<String>>,
+        #[clap(short, long)]
+        week: Option<u32>,
     },
 }

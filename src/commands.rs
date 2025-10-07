@@ -1,4 +1,3 @@
-
 use tabled::{
     Table,
     settings::{
@@ -7,7 +6,10 @@ use tabled::{
     },
 };
 
-use crate::class::{Class, Lesson};
+use crate::{
+    class::{Class, Lesson},
+    cli::ClassAction,
+};
 
 pub struct Classes(pub Vec<Class>);
 
@@ -51,20 +53,26 @@ impl Classes {
         Ok(())
     }
 
-    pub fn add(&mut self, name: String, lesson_name: String, done: Option<String>) -> StringErr {
+    pub fn add(
+        &mut self,
+        name: String,
+        lesson_name: String,
+        done: Option<String>,
+        week: u32,
+    ) -> StringErr {
         let class = self.find_mut(&name)?;
-        let mut lesson = Lesson::new(lesson_name);
+        let mut lesson = Lesson::new(lesson_name, week);
 
         let done = match done {
-            None => "arp".to_string(),
+            None => "".to_string(),
             Some(str) => str,
         };
 
         if done.contains("a") {
             lesson.attended = true;
         }
-        if done.contains("r") {
-            lesson.read = true;
+        if done.contains("u") {
+            lesson.understood = true;
         }
         if done.contains("p") {
             lesson.processed = true;
@@ -84,9 +92,9 @@ impl Classes {
         Ok(())
     }
 
-    pub fn read(&mut self, name: String, lesson_id: usize) -> StringErr {
+    pub fn understood(&mut self, name: String, lesson_id: usize) -> StringErr {
         let class = self.find_mut(&name)?;
-        class.lessons[lesson_id].read = true;
+        class.lessons[lesson_id].understood = true;
 
         print_lessons(&class.lessons);
         Ok(())
@@ -97,6 +105,40 @@ impl Classes {
         class.lessons[lesson_id].processed = true;
 
         print_lessons(&class.lessons);
+        Ok(())
+    }
+
+    pub fn remove(&mut self, name: String, lesson_id: usize) -> StringErr {
+        let class = self.find_mut(&name)?;
+        class.lessons.remove(lesson_id);
+
+        print_lessons(&class.lessons);
+        Ok(())
+    }
+
+    pub fn edit(&mut self, name: String, action: ClassAction) -> StringErr {
+        if let ClassAction::Edit {
+            lesson_id,
+            description,
+            week,
+        } = action
+        {
+            let class = self.find_mut(&name)?;
+            let lesson = class
+                .lessons
+                .get_mut(lesson_id)
+                .ok_or("No lesson with that id".to_string())?;
+
+            if let Some(description) = description {
+                lesson.description = description.join(" ");
+            }
+
+            if let Some(week) = week {
+                lesson.week = week;
+            }
+            print_lessons(&class.lessons);
+        }
+
         Ok(())
     }
 }

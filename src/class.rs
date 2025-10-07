@@ -22,15 +22,19 @@ impl Class {
 #[tabled(display(bool, "display_bool"))]
 pub struct Lesson {
     pub name: String,
+    #[tabled(rename = "w")]
+    pub week: u32,
     pub attended: bool,
-    pub read: bool,
+    pub understood: bool,
     pub processed: bool,
+    pub description: String,
 }
 
 impl Lesson {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: String, week: u32) -> Self {
         Lesson {
             name,
+            week,
             ..Default::default()
         }
     }
